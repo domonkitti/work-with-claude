@@ -4,6 +4,9 @@ dev projects/
 # Budget files may contain sensitive data - opt-in manually
 budget projects/
 
+# Temp files
+temp/
+
 # Environment variables and secrets
 .env
 .env.*
