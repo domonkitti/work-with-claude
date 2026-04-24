@@ -1,0 +1,10 @@
+# Dev projects are separate git repos
+dev projects/
+
+# Budget files may contain sensitive data - opt-in manually
+budget projects/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
