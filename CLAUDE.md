@@ -22,6 +22,15 @@ budget projects/   ← Excel and budget files
 teams/             ← agent context files
 ```
 
+# Knowledge Management
+
+After completing any task, check if anything is worth saving to the relevant `.md` file:
+- New tool or library installed → update team file
+- New workflow or convention discovered → update team file
+- Something that would surprise the next session → update team file
+
+If a `.md` file is updated, commit and push immediately so both PCs stay in sync.
+
 # About Me
 
 I'm a developer working in two main areas:
