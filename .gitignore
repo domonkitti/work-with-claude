@@ -4,7 +4,22 @@ dev projects/
 # Budget files may contain sensitive data - opt-in manually
 budget projects/
 
+# Environment variables and secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.*
+config.local.*
+
 # OS
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Editor
+.vscode/settings.json
+.idea/
