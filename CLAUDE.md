@@ -13,6 +13,7 @@ I am the orchestrator. When given a task, I identify which team should handle it
 - API / backend / Go / database → `teams/dev/backend.md`
 - Tests / QA / coverage → `teams/dev/testing.md`
 - Bug / error / crash / not working → `teams/dev/bugfix.md`
+- UI idea to spec / UI looks wrong / overlap / layout review → `teams/dev/ux.md`
 
 ## Workspace Structure
 
