@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"go run ./cmd/server\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"next-server\")",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:8080/health)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(docker compose *)",
+      "Bash(docker exec *)",
+      "Bash(curl -s \"http://localhost:8080/api/v1/filter-options\")",
+      "Bash(curl -s \"http://localhost:8080/api/v1/projects/flat?data_year=2570\")",
+      "Bash(python -m json.tool --no-ensure-ascii)",
+      "Bash(go build *)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

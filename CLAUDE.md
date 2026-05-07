@@ -1,55 +1,50 @@
-# Orchestrator
-
-I am the orchestrator. When given a task, I identify which team should handle it and delegate accordingly.
-
-## Routing Logic
-
-**Step 1 — Domain:**
-- Is this a dev task? → route to `teams/dev/`
-- Is this a budget/Excel task? → route to `teams/budget/`
-
-**Step 2 — Dev team selection:**
-- UI / frontend / Next.js / components → `teams/dev/ui.md`
-- API / backend / Go / database → `teams/dev/backend.md`
-- Tests / QA / coverage → `teams/dev/testing.md`
-- Bug / error / crash / not working → `teams/dev/bugfix.md`
-- UI idea to spec / UI looks wrong / overlap / layout review → `teams/dev/ux.md`
-
-## Workspace Structure
-
-```
-dev projects/      ← git repos for dev work
-budget projects/   ← Excel and budget files
-teams/             ← agent context files
-```
-
-# Knowledge Management
-
-After completing any task, check if anything is worth saving to the relevant `.md` file:
-- New tool or library installed → update team file
-- New workflow or convention discovered → update team file
-- Something that would surprise the next session → update team file
-
-If a `.md` file is updated, commit and push immediately so both PCs stay in sync.
-
 # About Me
 
-I'm a developer working in two main areas:
-
-- **Budget team work**: odd jobs using Excel (formulas, data analysis, budgeting tasks)
-- **Web app development**: Go (backend) + Next.js (frontend)
+Developer working in two areas:
+- **Web app**: Go (backend) + Next.js (App Router) frontend
+- **Budget/Excel**: odd jobs using Excel (formulas, data analysis, finance tasks)
 
 # How to Work With Me
 
-- Keep responses concise and practical — show me the code, not long explanations
-- When I ask about Excel, I'm likely doing budget/finance-related tasks
-- When I ask about Go or Next.js, assume a working webapp context
-- If something is unclear, ask one focused question rather than listing many options
+- Concise and practical — show code, not explanations
+- If unclear, ask one focused question
 - Default to idiomatic Go and modern Next.js (App Router) patterns
 
 # Tech Stack
 
-- **Backend**: Go
-- **Frontend**: Next.js (React)
-- **Data/Spreadsheets**: Microsoft Excel
-- **Misc**: whatever the odd job requires
+- **Backend**: Go — standard library first, minimal deps, thin handlers, logic in services
+- **Frontend**: Next.js (React) — App Router, Server Components by default, small focused components
+- **Tests**: Go uses `testing` + `testify`; Next.js uses Jest / React Testing Library. Test behavior not implementation. No mocking unless necessary.
+- **Data**: Microsoft Excel (Python with `openpyxl` and `pandas` available for file manipulation)
+
+# Excel Workflow
+
+For file manipulation tasks:
+1. User closes Excel first (file lock)
+2. User describes what to do + gives file path
+3. Write and run a Python script
+4. User reopens Excel — done
+
+For advice-only (formulas, how-to): no file needed, user describes the problem.
+
+# UI Review Checklist
+
+When reviewing UI, check for: overflow/overlap, missing scroll on long lists/tables, empty states, alignment, responsiveness, sticky headers on long tables, loading/error states.
+
+# Knowledge Management
+
+After completing any task, check if anything is worth saving to memory:
+- New tool or library installed
+- New workflow or convention discovered
+- Something that would surprise the next session
+
+If memory is updated, commit and push so both PCs stay in sync.
+
+# Workspace Structure
+
+```
+dev-projects/
+  budget-app/       ← Next.js frontend (see dev-projects/budget-app/CLAUDE.md for full map)
+  budget-app-api/   ← Go backend     (see dev-projects/budget-app-api/CLAUDE.md for full map)
+budget-projects/    ← Excel and budget files
+```
