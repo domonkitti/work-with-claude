@@ -13,7 +13,14 @@
       "Bash(curl -s \"http://localhost:8080/api/v1/projects/flat?data_year=2570\")",
       "Bash(python -m json.tool --no-ensure-ascii)",
       "Bash(go build *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\work with claude\\\\dev-projects\\\\budget-app\" -Recurse -Filter \"page.tsx\")",
+      "Bash(Select-Object -First 20)",
+      "Bash(cat .env)",
+      "Bash(cat .env.example)",
+      "Bash(python temp/build_mock.py)",
+      "Bash(python *)",
+      "Bash(git add *)"
     ]
   }
 }
