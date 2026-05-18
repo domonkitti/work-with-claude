@@ -47,4 +47,25 @@ dev-projects/
   budget-app/       ← Next.js frontend (see dev-projects/budget-app/CLAUDE.md for full map)
   budget-app-api/   ← Go backend     (see dev-projects/budget-app-api/CLAUDE.md for full map)
 budget-projects/    ← Excel and budget files
+temp/               ← NOT in git (gitignored) — local working files only
 ```
+
+# temp/ Folder — Manual Sync Required
+
+`temp/` is gitignored and must be copied manually between PCs.
+
+**Files in temp/ that matter:**
+- `build_mock.py` — transforms Mocking-new CSV → mock_data.json + seed_big.sql + uploads to DB
+- `Mocking-new vX.csv` — latest mock data CSV (bring the newest version)
+- `division.csv` — division/department lookup table
+- `หมวด mapping.csv` — project group (หมวด) lookup table
+
+**When arriving at home:**
+1. Copy these 4 files into `temp/` on the home PC
+2. Make sure Docker is running (`docker compose up db` in budget-app-api)
+3. Run `python temp/build_mock.py --db` to seed the database
+
+**build_mock.py auto-detects:**
+- Latest `Mocking-new*.csv` (picks newest by modified date)
+- Delimiter (comma or tab)
+- Encoding (UTF-8 BOM or CP874)
