@@ -10,6 +10,16 @@ Developer working in two areas:
 - If unclear, ask one focused question
 - Default to idiomatic Go and modern Next.js (App Router) patterns
 
+## Coding Principles (Karpathy)
+
+**Think Before Coding** — State assumptions explicitly before starting. If multiple interpretations exist, present them — don't pick silently. If something is unclear, stop and ask.
+
+**Simplicity First** — Minimum code that solves the problem. No speculative features, no abstractions for single-use code, no "flexibility" that wasn't asked for. If it could be 50 lines, don't write 200.
+
+**Surgical Changes** — Touch only what the request requires. Don't improve adjacent code, don't refactor things that aren't broken, match existing style. Every changed line must trace directly to the user's request.
+
+**Goal-Driven Execution** — Transform tasks into verifiable goals. For multi-step work, state a brief plan with explicit success criteria before starting.
+
 # Tech Stack
 
 - **Backend**: Go — standard library first, minimal deps, thin handlers, logic in services

@@ -1,0 +1,820 @@
+================================================================================
+  LOCAL AI SETUP PLAN — RTX 3090 (24GB VRAM)
+  Written: 2026-06-16
+================================================================================
+
+RTX 3090 = 24GB VRAM. This is a lot. You can run models up to ~70B in Q4 quant
+or full 32B models in higher quality. This is a serious local AI rig.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  WHICH TOOL TO RUN IT?
+────────────────────────────────────────────────────────────────────────────────
+
+OPTION A — Ollama (RECOMMENDED to start)
+  - Easiest setup: one installer, done
+  - Run any model with: ollama run qwen3:32b
+  - Has a REST API (compatible with OpenAI API format)
+  - Works with Open WebUI for a ChatGPT-like UI
+  - Download: https://ollama.com
+
+OPTION B — LM Studio
+  - Nice GUI, good for exploring models
+  - Built-in chat interface
+  - Download: https://lmstudio.ai
+
+OPTION C — llama.cpp (advanced)
+  - Most control, best performance tuning
+  - Runs via CLI or server mode
+  - Good if you want to go deep
+
+OPTION D — vLLM (advanced, best throughput)
+  - Production-grade, GPU-optimized
+  - Best if you want to serve it as an API to multiple apps
+  - Requires more setup (Python, CUDA toolkit)
+
+
+────────────────────────────────────────────────────────────────────────────────
+  QWEN MODELS — WHAT TO RUN ON 3090 (24GB VRAM)
+────────────────────────────────────────────────────────────────────────────────
+
+All sizes below are approximate VRAM usage at Q4 quantization.
+
+QWEN2.5 (Stable, well-tested)
+  qwen2.5:7b       →  ~5GB   — fast, lightweight, great for side tasks
+  qwen2.5:14b      →  ~9GB   — good balance of speed and quality
+  qwen2.5:32b      →  ~20GB  — excellent quality, fits 3090 comfortably ✓ SWEET SPOT
+  qwen2.5:72b      →  ~44GB  — too big for single 3090 (needs 2x 3090 or quantize more)
+
+QWEN3 (Newest — as of mid-2025)
+  qwen3:8b         →  ~5GB   — fast and smart, has thinking mode
+  qwen3:14b        →  ~9GB   — strong coding + reasoning
+  qwen3:32b        →  ~20GB  — top tier, fits 3090 ✓ BEST CHOICE
+  qwen3:30b-a3b    →  ~18GB  — MoE variant, very fast, fits easily ✓ ALSO GREAT
+
+QWEN SPECIALIZED
+  qwen2.5-coder:32b      →  ~20GB  — best for code generation
+  qwen-vl (vision):7b    →  ~5GB   — can process images + text (multimodal)
+
+RECOMMENDATION:
+  Start with: ollama run qwen3:32b
+  For coding:  ollama run qwen2.5-coder:32b
+  For speed:   ollama run qwen3:30b-a3b
+
+
+────────────────────────────────────────────────────────────────────────────────
+  SETUP STEPS (WINDOWS)
+────────────────────────────────────────────────────────────────────────────────
+
+STEP 1 — Install Ollama
+  Download from: https://ollama.com
+  Installs as a background service, auto-starts with Windows
+
+STEP 2 — Pull a model
+  Open PowerShell or CMD:
+    ollama pull qwen3:32b
+
+STEP 3 — Run it
+  ollama run qwen3:32b
+  (or access via API at http://localhost:11434)
+
+STEP 4 — Install Open WebUI (optional but great)
+  Gives you a ChatGPT-style interface in your browser.
+  Requires Docker. Run:
+    docker run -d -p 3000:80 \
+      -v open-webui:/app/backend/data \
+      --add-host=host.docker.internal:host-gateway \
+      ghcr.io/open-webui/open-webui:main
+  Then open: http://localhost:3000
+
+STEP 5 — Set GPU layers
+  Ollama auto-detects 3090. All layers go to GPU by default.
+  Check it's using GPU: ollama ps  (should show GPU memory used)
+
+
+────────────────────────────────────────────────────────────────────────────────
+  USE CASES TO TRY
+────────────────────────────────────────────────────────────────────────────────
+
+1. Coding assistant
+   - Integrate with VS Code via "Continue" extension (uses Ollama as backend)
+   - Model: qwen2.5-coder:32b
+
+2. Chat / Q&A
+   - Use Open WebUI in browser
+   - Model: qwen3:32b
+
+3. API backend for your own apps
+   - Ollama exposes OpenAI-compatible API at http://localhost:11434/v1
+   - Drop-in replacement for OpenAI calls in your Go or Next.js apps
+
+4. Document analysis
+   - Feed it PDFs or long text via the API
+   - Qwen3 has 128K context window
+
+5. Thai language tasks
+   - Qwen2.5/3 handles Thai well (trained on multilingual data)
+   - Good for your budget app Thai text (หมวด, ผูกพัน etc.)
+
+6. Image analysis (with vision model)
+   - Screenshot analysis, document scanning
+   - Model: qwen-vl
+
+
+────────────────────────────────────────────────────────────────────────────────
+  INTEGRATE WITH YOUR BUDGET APP
+────────────────────────────────────────────────────────────────────────────────
+
+Since Ollama exposes an OpenAI-compatible API, your Go backend can call it:
+
+  POST http://localhost:11434/v1/chat/completions
+  Body: { "model": "qwen3:32b", "messages": [...] }
+
+Use cases in budget app:
+  - Auto-suggest project categories from project name
+  - Summarize budget usage in Thai
+  - Generate budget analysis reports
+  - Answer "why is this project over budget?" from the data
+
+
+────────────────────────────────────────────────────────────────────────────────
+  OTHER MODELS WORTH TRYING (NOT QWEN)
+────────────────────────────────────────────────────────────────────────────────
+
+Gemma 3 27B      →  Google, strong reasoning, fits 3090
+Llama 3.3 70B    →  Meta, needs Q3 quant to fit, worth it
+Mistral 24B      →  Fast and capable
+DeepSeek-R1 32B  →  Strong reasoning/thinking model, fits 3090 well
+Phi-4 14B        →  Microsoft, surprisingly good for its size
+
+
+────────────────────────────────────────────────────────────────────────────────
+  QUICK REFERENCE COMMANDS
+────────────────────────────────────────────────────────────────────────────────
+
+  ollama list                    # see installed models
+  ollama pull qwen3:32b          # download model
+  ollama run qwen3:32b           # chat in terminal
+  ollama ps                      # see running models + VRAM usage
+  ollama rm qwen3:32b            # delete model to free disk
+
+  API test (PowerShell):
+    Invoke-RestMethod -Uri http://localhost:11434/api/generate `
+      -Method POST -ContentType "application/json" `
+      -Body '{"model":"qwen3:32b","prompt":"Hello","stream":false}'
+
+
+================================================================================
+  DEEP DIVE — THINGS MOST PEOPLE MISS
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+  WHAT "24GB VRAM" ACTUALLY MEANS FOR YOU
+────────────────────────────────────────────────────────────────────────────────
+
+Most people buying a GPU for gaming never fill the VRAM. For AI it's the
+opposite — VRAM is the bottleneck. Here's what your 3090 unlocks:
+
+  Cloud GPUs for comparison:
+    AWS g4dn.xlarge   →  16GB VRAM   — costs ~$0.50/hr, you have MORE than this
+    Google T4          →  16GB VRAM   — same
+    A100 (cheapest)   →  40GB VRAM   — costs ~$3-4/hr
+
+  Your 3090 effectively gives you a free cloud GPU running 24/7.
+  At $0.50/hr cloud cost, that's $360/month you're not paying.
+  At $3/hr (A100 level), that's $2,160/month equivalent.
+
+  The 3090 is NOT the newest card but for LLM inference it punches way above
+  its purchase price because of 24GB VRAM — the 4080 has only 16GB.
+  You made the right choice (or got lucky — doesn't matter, same result).
+
+
+────────────────────────────────────────────────────────────────────────────────
+  QUANTIZATION EXPLAINED (WHY IT MATTERS)
+────────────────────────────────────────────────────────────────────────────────
+
+Models are stored in different precisions. This affects quality and VRAM usage.
+
+  FP32   — full precision  — 4 bytes/param  — almost nobody uses this for inference
+  FP16   — half precision  — 2 bytes/param  — standard training precision
+  Q8     — 8-bit quant     — 1 byte/param   — near-lossless, 2x smaller than FP16
+  Q4     — 4-bit quant     — 0.5 bytes/param — good tradeoff, most popular
+  Q3/Q2  — aggressive quant — smaller but noticeable quality drop
+
+  Example: Qwen3 32B at different quants
+    FP16  →  ~64GB  — doesn't fit 3090
+    Q8    →  ~32GB  — doesn't fit 3090
+    Q4    →  ~20GB  — fits perfectly ✓
+    Q3    →  ~14GB  — fits with room, but quality degrades
+
+  Ollama handles this automatically — it picks the best quant that fits your VRAM.
+  When you pull qwen3:32b, it downloads the Q4 version by default. Good default.
+
+  Want more control? Pull a specific quant from Hugging Face via ollama:
+    ollama pull hf.co/bartowski/Qwen3-32B-GGUF:Q5_K_M
+  Q5_K_M is a good upgrade from Q4 if you want slightly more quality.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  QWEN3's "THINKING MODE" — WHAT IS IT?
+────────────────────────────────────────────────────────────────────────────────
+
+Qwen3 has two modes built into the same model:
+
+  Non-thinking mode (default):
+    - Responds like a normal chatbot
+    - Fast, good for simple questions
+    - Enable with system prompt: /no_think
+
+  Thinking mode:
+    - Model "thinks" before answering (like reasoning chains)
+    - Much better at math, logic, coding problems
+    - Slower (generates internal chain-of-thought first)
+    - Enable with: /think in your message, or system prompt: /think
+
+  Example:
+    User: /think What is the optimal budget allocation across 12 projects
+          given these constraints: [data]
+    Model: <think>Let me analyze this systematically...</think>
+           [actual answer]
+
+  The thinking tokens are generated but you can choose to show or hide them.
+  In Open WebUI they show as a collapsible "Thinking..." section.
+
+  When to use thinking mode:
+    - Complex analysis or reasoning
+    - Debugging tricky code
+    - Math / financial calculations
+    - Comparing options with tradeoffs
+
+  When NOT to use it:
+    - Simple Q&A (wastes time)
+    - Translation or text generation
+    - When you need a fast response
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MoE vs DENSE MODELS — qwen3:30b-a3b EXPLAINED
+────────────────────────────────────────────────────────────────────────────────
+
+  Dense model (qwen3:32b):
+    - Every token activates ALL 32 billion parameters
+    - Consistent quality, predictable speed
+    - Uses ~20GB VRAM
+
+  MoE model (qwen3:30b-a3b):
+    - "30b" = 30 billion total parameters
+    - "a3b" = only 3 billion ACTIVE per token (mixture of experts)
+    - The model routes each token to expert sub-networks
+    - Uses less compute per token → MUCH faster generation speed
+    - Quality is often comparable to a dense model twice its active size
+    - Uses ~18GB VRAM
+
+  Why this matters:
+    - qwen3:30b-a3b generates tokens ~3-4x faster than qwen3:32b
+    - For coding tasks or long generation, that speed difference is huge
+    - Quality is surprisingly close (sometimes better on certain tasks)
+
+  Try both and see which feels better for your workflow.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  SPEED — WHAT TO REALISTICALLY EXPECT
+────────────────────────────────────────────────────────────────────────────────
+
+Token generation speed on RTX 3090 (approximate):
+
+  qwen3:8b         →  60-80 tokens/sec   — feels instant
+  qwen3:14b        →  35-50 tokens/sec   — very fast
+  qwen3:30b-a3b    →  30-45 tokens/sec   — fast (MoE advantage)
+  qwen3:32b        →  15-25 tokens/sec   — comfortable, like reading pace
+  llama3.3:70b Q3  →  8-12 tokens/sec    — slow but usable
+
+  For comparison:
+    ChatGPT / Claude API  →  40-80 tokens/sec (cloud, varies)
+    GPT-4o                →  ~30 tokens/sec
+
+  Your 3090 with qwen3:32b (~20 tok/s) is actually comparable to many
+  cloud APIs and COMPLETELY FREE with zero latency from your desk.
+
+  The bottleneck is memory bandwidth, not compute:
+    3090 memory bandwidth: 936 GB/s
+    4090 memory bandwidth: 1,008 GB/s  (only ~8% faster for inference)
+    This is why the 3090 is not far behind a 4090 for LLM work.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  CONTEXT WINDOW — WHY IT MATTERS
+────────────────────────────────────────────────────────────────────────────────
+
+Context = how much text the model can "see" at once (input + output combined).
+
+  Qwen3 max context: 128,000 tokens (~100,000 words / ~300 pages of text)
+
+  BUT: longer context = more VRAM used for the KV cache.
+  At 128K context, Qwen3:32b may not fit on 3090.
+
+  Practical limits for 3090:
+    ~4K  context  →  no problem, full VRAM for model weights
+    ~8K  context  →  fine
+    ~32K context  →  some VRAM goes to KV cache, still fits
+    ~64K context  →  tight, may need to reduce context or use smaller model
+    128K context  →  use qwen3:8b or qwen3:14b instead of 32b
+
+  Ollama setting to control context:
+    ollama run qwen3:32b --ctx 8192
+
+  For most coding and chat tasks, 8K-16K is plenty.
+  For analyzing entire codebases or long documents, use 32K+ with a smaller model.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  DISK SPACE — PLAN FOR THIS
+────────────────────────────────────────────────────────────────────────────────
+
+Models are big. Estimate your storage needs before you start downloading.
+
+  qwen3:8b         →  ~5GB on disk
+  qwen3:14b        →  ~9GB on disk
+  qwen3:32b        →  ~20GB on disk
+  qwen2.5-coder:32b → ~20GB on disk
+  llama3.3:70b Q3  →  ~28GB on disk
+
+  If you want to try 3-4 models: budget 80-100GB free disk space.
+
+  Ollama stores models at:
+    Windows: C:\Users\<you>\.ollama\models\
+
+  To move to another drive (e.g., D:):
+    Set environment variable: OLLAMA_MODELS=D:\ollama-models
+    Then restart Ollama service.
+
+  This is important — don't fill your C: drive with model files.
+
+  CAN YOU RUN MODELS FROM AN HDD ON D: ?
+  Yes. Models load from disk into VRAM once at startup. After that, disk
+  speed is completely irrelevant — generation runs 100% in VRAM.
+
+    HDD D: load time for qwen3:32b (~20GB):  ~2-3 minutes (one time)
+    SSD load time for qwen3:32b (~20GB):     ~7-40 seconds
+    Generation speed after loading:           IDENTICAL on both
+
+  Ollama keeps the model hot in VRAM as long as the service is running,
+  so the slow load only happens once per session (after reboot).
+
+  HDD on D: is a perfectly valid choice to avoid filling your C: SSD.
+  Just set OLLAMA_MODELS=D:\ollama-models and you're done.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  OPEN WEBUI — MORE THAN JUST A CHAT UI
+────────────────────────────────────────────────────────────────────────────────
+
+Open WebUI (https://github.com/open-webui/open-webui) looks like ChatGPT but
+has features that ChatGPT doesn't:
+
+  - Multiple models: switch between qwen3:32b and qwen2.5-coder:32b mid-session
+  - RAG (Retrieval-Augmented Generation): upload PDFs, it chunks + embeds them,
+    then you can ask questions and it searches your docs automatically
+  - Image generation: connect to Stable Diffusion (ComfyUI) for text-to-image
+  - Voice input/output: speak to the model, it speaks back
+  - Web search: connect to SearXNG or Brave Search API for live web access
+  - Conversation history: saved locally in your Docker volume
+  - User management: if you want to share with family/coworkers on your LAN
+  - Tools / function calling: model can call Python functions you define
+  - Pipelines: chain models, add pre/post processing
+
+  RAG setup (documents Q&A):
+    1. Open WebUI → Workspace → Documents
+    2. Upload any PDF, Word doc, or text file
+    3. In chat, click the # button to reference the document
+    4. Ask: "Summarize the key points" or "What does it say about X?"
+
+  This turns your 3090 into a private document analysis engine.
+  Useful for: contracts, reports, technical docs, research papers.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  CONTINUE EXTENSION — AI IN VS CODE
+────────────────────────────────────────────────────────────────────────────────
+
+The "Continue" VS Code extension (https://continue.dev) connects to Ollama and
+gives you Copilot-like features powered by your local model.
+
+  Features:
+    - Tab completion (suggests code as you type)
+    - Chat in sidebar (ask questions about your code)
+    - "@codebase" — ask about your entire project
+    - "@file" — ask about a specific file
+    - "@docs" — paste a URL and ask about the docs
+    - Inline edit: select code, press Ctrl+I, describe the change
+
+  Setup:
+    1. Install "Continue" from VS Code extensions marketplace
+    2. Open Continue config: ~/.continue/config.json
+    3. Add Ollama as provider:
+
+    {
+      "models": [
+        {
+          "title": "Qwen3 32B",
+          "provider": "ollama",
+          "model": "qwen3:32b"
+        },
+        {
+          "title": "Qwen Coder 32B",
+          "provider": "ollama",
+          "model": "qwen2.5-coder:32b"
+        }
+      ],
+      "tabAutocompleteModel": {
+        "title": "Qwen3 8B (fast)",
+        "provider": "ollama",
+        "model": "qwen3:8b"
+      }
+    }
+
+  Pro tip: use qwen3:8b for tab completion (fast, low latency) and
+  qwen3:32b for the chat sidebar (quality when you need to think).
+  Both run simultaneously since 8b + 32b = ~25GB — barely fits 3090.
+  Actually keep them separate to avoid running out of VRAM.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  PRIVATE BY DEFAULT — THE REAL REASON TO GO LOCAL
+────────────────────────────────────────────────────────────────────────────────
+
+When you use ChatGPT, Claude, or Gemini:
+  - Your prompts go to their servers
+  - They may be used for training (depends on settings)
+  - You can't use sensitive work data safely
+  - You're always one API outage or price hike away from losing access
+
+With local AI:
+  - Nothing leaves your machine. Ever.
+  - Paste your actual budget data, salary info, contract text — no risk
+  - Works offline (plane, bad internet, server outage)
+  - No usage limits, no rate limits, no per-token cost
+  - You own the model file — it won't be deprecated or changed under you
+
+For your budget app specifically:
+  - You can feed it real financial data from your database
+  - Government budget numbers, project names, division data
+  - None of that ever goes to a third party
+
+
+────────────────────────────────────────────────────────────────────────────────
+  ADVANCED: FUNCTION CALLING / TOOL USE
+────────────────────────────────────────────────────────────────────────────────
+
+Qwen3 supports structured tool calling — the model can decide to call
+functions you define, like an agent.
+
+Example workflow:
+  You ask: "How much did division X spend last quarter vs budget?"
+  Model decides to call: get_budget_data(division="X", quarter="Q1-2026")
+  Your code runs that function against your database
+  Model gets the result and answers the question in natural language
+
+This is how you build a "talk to your data" feature in your budget app.
+
+  Go example skeleton:
+    type Tool struct {
+        Name        string
+        Description string
+        Parameters  map[string]interface{}
+    }
+
+    // Define tools in your API call to Ollama
+    // Ollama returns: { "tool_calls": [{ "function": { "name": "...", "arguments": {...} } }] }
+    // Your handler executes the function, sends result back, model responds
+
+  Qwen3 is one of the best open models for reliable tool calling.
+  It rarely hallucinates function names or parameters.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  ADVANCED: EMBEDDINGS FOR SEARCH
+────────────────────────────────────────────────────────────────────────────────
+
+Embeddings = turning text into numbers so you can do semantic search.
+"Find documents similar to this" — not keyword match, meaning match.
+
+  Ollama supports embedding models too:
+    ollama pull nomic-embed-text   # small, fast, great quality
+    ollama pull mxbai-embed-large  # larger, higher quality
+
+  API call:
+    POST http://localhost:11434/api/embeddings
+    Body: { "model": "nomic-embed-text", "prompt": "budget allocation Q1" }
+    Returns: { "embedding": [0.123, -0.456, ...] }  (768 or 1024 numbers)
+
+  Store these in pgvector (Postgres extension) and do:
+    SELECT * FROM documents ORDER BY embedding <-> $query_embedding LIMIT 5;
+
+  Use cases for budget app:
+    - Search projects by description meaning, not just keywords
+    - "Find projects similar to this one"
+    - "Which projects are related to infrastructure?"
+    - Power the RAG feature (Open WebUI uses this internally)
+
+
+────────────────────────────────────────────────────────────────────────────────
+  ADVANCED: FINE-TUNING (DOWN THE ROAD)
+────────────────────────────────────────────────────────────────────────────────
+
+Fine-tuning = training the model further on your own data to specialize it.
+Example: train on your budget app's domain so it knows your terminology.
+
+  This is NOT a day-1 thing. But worth knowing it's possible.
+
+  Tools:
+    - Unsloth (https://github.com/unslothai/unsloth) — fastest fine-tuning,
+      works on consumer GPUs, supports Qwen models
+    - LLaMA-Factory — GUI for fine-tuning, easier entry point
+
+  3090 24GB is enough for fine-tuning 7B models with LoRA/QLoRA.
+  For 32B fine-tuning you'd need more VRAM (A100 class) or gradient checkpointing.
+
+  LoRA = Low-Rank Adaptation: you don't retrain all weights, just small adapter
+  layers. Much cheaper, fast, and surprisingly effective.
+
+  Don't fine-tune until you've exhausted what you can do with prompting.
+  Good system prompts often get 90% of the way there without any training.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  ADVANCED: RUN AS A LAN SERVER
+────────────────────────────────────────────────────────────────────────────────
+
+Your home PC with 3090 can serve AI to ALL devices on your home network:
+laptop, phone, tablet, work laptop (VPN).
+
+  Step 1: Tell Ollama to listen on all interfaces (not just localhost)
+    Windows: set environment variable
+      OLLAMA_HOST=0.0.0.0:11434
+    Restart Ollama service
+
+  Step 2: Find your PC's local IP
+    ipconfig → look for IPv4 Address (e.g., 192.168.1.100)
+
+  Step 3: From other devices, use http://192.168.1.100:11434 as the API base
+
+  Step 4: Open WebUI on other devices
+    Point Open WebUI to the 3090 machine's Ollama URL in settings
+
+  Now your phone can chat with qwen3:32b running on your desk PC.
+  Or your work laptop (via VPN/Tailscale) can use it as a coding assistant.
+
+  Security note: only do this on your home LAN. Don't expose port 11434
+  directly to the internet without auth. Use Tailscale for remote access.
+
+  Tailscale (https://tailscale.com) — free VPN mesh, makes your home PC
+  accessible from anywhere as if it's on the same LAN. Zero config.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  TEMPERATURE AND OTHER PARAMETERS — WHAT THEY MEAN
+────────────────────────────────────────────────────────────────────────────────
+
+When calling the API you control these:
+
+  temperature (0.0 - 2.0, default ~0.7)
+    0.0  →  deterministic, always same answer, good for factual/code tasks
+    0.7  →  balanced (default)
+    1.2+ →  creative, more variation, good for writing/brainstorm
+
+  top_p (0.0 - 1.0, default 0.9)
+    Controls diversity. Lower = more focused. Works with temperature.
+    Usually leave this alone unless temperature isn't doing enough.
+
+  top_k (default ~40)
+    Limits token selection to top K candidates. Lower = more predictable.
+
+  repeat_penalty (default 1.1)
+    Penalizes repeating the same tokens. Increase if model loops/repeats.
+
+  num_ctx (context window size)
+    Default in Ollama is often 2048. Increase for longer conversations:
+    ollama run qwen3:32b --ctx 16384
+
+  For coding: temperature 0.0-0.2, ctx 8192+
+  For chat: temperature 0.7, ctx 4096
+  For creative: temperature 1.0-1.2, ctx 4096
+
+  In Open WebUI: Advanced Parameters section in the chat settings.
+  In API: add to the request body JSON.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MODELFILE — CREATING CUSTOM PERSONAS
+────────────────────────────────────────────────────────────────────────────────
+
+Ollama lets you create custom model variants with a Modelfile.
+Think of it as a saved system prompt + parameter config.
+
+  Example: create a "budget-analyst" persona
+
+  Create file: Modelfile
+    FROM qwen3:32b
+    SYSTEM """
+    You are a Thai government budget analyst assistant. You understand
+    Thai fiscal year structure (Oct-Sep), budget categories (งบประมาณ),
+    budget types (เงินงบประมาณ, เงินนอกงบประมาณ), and procurement processes.
+    When analyzing data, always present numbers in Thai Baht (฿) with commas.
+    Answer in Thai unless the user writes in English.
+    """
+    PARAMETER temperature 0.3
+    PARAMETER num_ctx 16384
+
+  Then build and run it:
+    ollama create budget-analyst -f Modelfile
+    ollama run budget-analyst
+
+  Now you have a specialized model that knows your domain without
+  repeating the system prompt every time.
+
+  You can create multiple personas:
+    budget-analyst   — for budget app questions
+    code-reviewer    — strict code review mode (temperature 0.1)
+    thai-translator  — optimized for EN↔TH translation
+    excel-helper     — specialized in Excel formulas and data analysis
+
+
+────────────────────────────────────────────────────────────────────────────────
+  BENCHMARKS TO REALITY CHECK YOUR SETUP
+────────────────────────────────────────────────────────────────────────────────
+
+After setup, run these sanity checks to know your model is working well:
+
+  Test 1 — Basic reasoning
+    "What is 17 * 23 + 144 / 12?"
+    Expected: 403 (correct math)
+
+  Test 2 — Code generation
+    "Write a Go function that takes a slice of ints and returns the sum"
+    Expected: clean, compilable Go code
+
+  Test 3 — Thai language
+    "สรุปงบประมาณของหน่วยงาน X ให้หน่อย"
+    Expected: coherent Thai response
+
+  Test 4 — Context retention
+    Tell it 5 facts about a fictional project, then ask about fact #3.
+    Expected: accurate recall
+
+  Test 5 — Thinking mode
+    "/think What is the optimal way to structure a budget database
+    for a government system tracking 500 projects across 50 divisions?"
+    Expected: structured, thoughtful analysis with <think> block
+
+  If tests 1-4 pass and thinking mode works: your setup is solid.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  TROUBLESHOOTING — COMMON ISSUES
+────────────────────────────────────────────────────────────────────────────────
+
+ISSUE: Model runs slow or uses CPU instead of GPU
+  Check: ollama ps  (should show VRAM used, not 0)
+  Fix: ensure NVIDIA drivers are up to date (>= 525)
+  Fix: check CUDA is installed: nvidia-smi → should show driver version
+  Fix: Ollama logs: C:\Users\<you>\AppData\Local\Ollama\ollama.log
+
+ISSUE: "Out of memory" error
+  Model is too big for your VRAM + system RAM.
+  Fix: use a smaller model or lower quant
+  Fix: close other GPU-using apps (games, other AI tools)
+  Check: ollama ps to see what's already loaded
+
+ISSUE: Model loads but generation is very slow (< 5 tok/s)
+  Model spilling to CPU RAM (not fully in VRAM).
+  Fix: use smaller model that fully fits in 24GB
+  Fix: increase page file size in Windows (virtual memory settings)
+
+ISSUE: Open WebUI can't connect to Ollama
+  Ollama not running: check Services or run: ollama serve
+  Docker networking issue: use --add-host=host.docker.internal:host-gateway
+  Firewall: allow port 11434 in Windows Defender Firewall
+
+ISSUE: Model gives bad output in Thai
+  Some models handle Thai better than others.
+  Best for Thai: Qwen2.5 and Qwen3 series (trained on multilingual data)
+  Worst: older Llama 2 models (barely trained on Thai)
+
+
+────────────────────────────────────────────────────────────────────────────────
+  COST COMPARISON — LOCAL VS CLOUD
+────────────────────────────────────────────────────────────────────────────────
+
+Assume heavy use: 1 million tokens/day input, 100K tokens/day output.
+
+  Claude Sonnet 4.6:
+    Input:  $3.00 / 1M tokens  →  $3.00/day
+    Output: $15.00 / 1M tokens  →  $1.50/day
+    Total:  ~$4.50/day = $135/month
+
+  GPT-4o:
+    Input:  $2.50 / 1M tokens  →  $2.50/day
+    Output: $10.00 / 1M tokens  →  $1.00/day
+    Total:  ~$3.50/day = $105/month
+
+  Local (RTX 3090):
+    Electricity: ~350W under load, ~$0.05/kWh (Thailand rate)
+    1M tokens takes maybe 14 hours of compute at average load
+    Cost: 0.35 kW * 14h * $0.05 = ~$0.25/day
+    Amortize hardware: 3090 ~$700, 3 year life = $0.64/day hardware cost
+    Total: ~$0.90/day = $27/month
+
+  For heavy workloads, local AI pays for itself in a few months.
+  For light personal use, the economics are less clear — but privacy is free.
+
+  The real break-even: if you use it consistently for 3+ months, local wins.
+  If you use AI only occasionally, cloud is fine.
+
+  Your situation: you already HAVE the 3090. Running cost only = obvious win.
+
+
+────────────────────────────────────────────────────────────────────────────────
+  WHAT QWEN3:32B CAN AND CANNOT DO
+────────────────────────────────────────────────────────────────────────────────
+
+CAN DO WELL:
+  ✓ Code generation (Go, Python, TypeScript, SQL — all strong)
+  ✓ Code review and debugging
+  ✓ Explaining complex concepts
+  ✓ Writing and editing (Thai and English)
+  ✓ Data analysis and reasoning (especially with thinking mode)
+  ✓ Translation (EN ↔ TH and many other languages)
+  ✓ Excel formula writing
+  ✓ Summarizing long documents
+  ✓ Structured output (JSON, tables, formatted reports)
+  ✓ Simple math and logic
+  ✓ Following detailed instructions
+
+CAN DO BUT SOMETIMES STRUGGLES:
+  ~ Complex multi-step math (use thinking mode, verify answers)
+  ~ Very long context (> 64K tokens gets fuzzy on details)
+  ~ Tasks requiring real-time information (knowledge cutoff)
+  ~ Highly specialized domain knowledge (medical, legal nuance)
+  ~ Precise counting/tracking of items in long text
+
+CANNOT DO:
+  ✗ Access the internet (unless you give it a web search tool)
+  ✗ Remember previous sessions (every conversation starts fresh)
+  ✗ Run code (unless you build a code execution tool for it)
+  ✗ See images (need qwen-vl model for that)
+  ✗ Generate images (different type of model entirely)
+
+COMPARED TO CLAUDE/GPT-4:
+  Qwen3:32b is genuinely competitive on coding tasks.
+  It may fall slightly behind on nuanced reasoning or obscure knowledge.
+  For your use cases (code, budget analysis, Thai text): very capable.
+
+
+================================================================================
+  ACTION PLAN — WHEN YOU GET HOME
+================================================================================
+
+DAY 1 (30 minutes):
+  1. Install Ollama: https://ollama.com
+  2. Open PowerShell: ollama pull qwen3:32b  (downloads ~20GB, get coffee)
+  3. Test it: ollama run qwen3:32b
+  4. Set OLLAMA_MODELS env var to D: or another drive if C: is small
+  5. Confirm GPU is being used: ollama ps
+
+DAY 2 (1 hour):
+  6. Install Docker Desktop (if not already installed)
+  7. Run Open WebUI (command in this file above)
+  8. Browse to http://localhost:3000, create account, start chatting
+  9. Pull a second model: ollama pull qwen2.5-coder:32b
+  10. Try the Continue VS Code extension for AI coding
+
+WEEK 1:
+  - Try feeding it your actual budget data (it's private — safe to do)
+  - Experiment with thinking mode (/think prefix)
+  - Try creating a Modelfile for a budget-analyst persona
+  - Try RAG with Open WebUI — upload a project document, ask questions
+
+MONTH 1:
+  - Decide if you want to expose it on your LAN (Tailscale for remote access)
+  - Try an embedding model for semantic search experiments
+  - Consider: could this replace any current AI subscription you're paying for?
+
+
+================================================================================
+  LINKS TO BOOKMARK
+================================================================================
+
+  Ollama:           https://ollama.com
+  Ollama models:    https://ollama.com/library
+  Open WebUI:       https://github.com/open-webui/open-webui
+  Continue (VSCode):https://continue.dev
+  LM Studio:        https://lmstudio.ai
+  Qwen on HF:       https://huggingface.co/Qwen
+  Unsloth (tuning): https://github.com/unslothai/unsloth
+  Tailscale (VPN):  https://tailscale.com
+  GGUF models:      https://huggingface.co/bartowski  (pre-quantized model files)
+
+================================================================================
